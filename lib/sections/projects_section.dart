@@ -144,6 +144,7 @@ class _ProjectsSectionState extends State<ProjectsSection> {
             PhoneMockupWidget(
               projectType: project.imageUrl,
               isFeatured: project.isFeatured,
+              images: project.appScreenshot,
             ),
             // Project details description area
             Padding(
@@ -290,7 +291,7 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                         crossAxisCount: context.isMobile ? 1 : (context.isTablet ? 2 : 3),
                         crossAxisSpacing: 24,
                         mainAxisSpacing: 24,
-                        childAspectRatio: context.isMobile ? 0.70 : (context.isTablet ? 0.60 : 0.85),
+                        childAspectRatio: context.isMobile ? 0.65 : (context.isTablet ? 0.55 : 0.8),
                       ),
                       itemBuilder: (context, index) {
                         return buildProjectCard(filteredProjects[index]);
@@ -307,11 +308,13 @@ class _ProjectsSectionState extends State<ProjectsSection> {
 class PhoneMockupWidget extends StatelessWidget {
   final String projectType;
   final bool isFeatured;
+  final List<String>? images;
 
   const PhoneMockupWidget({
     super.key,
     required this.projectType,
     required this.isFeatured,
+    required this.images,
   });
 
   @override
@@ -331,151 +334,161 @@ class PhoneMockupWidget extends StatelessWidget {
 
     Widget buildPhoneUI(int position) {
       Widget mockScreenContent = const SizedBox.shrink();
+      bool hasImage = images != null && images!.length > position;
 
-      if (projectType == 'wechat') {
-        if (position == 1) {
-          mockScreenContent = Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(height: 12, color: Colors.blueAccent.withOpacity(0.3)),
-              const SizedBox(height: 6),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  width: 35,
-                  height: 10,
-                  margin: const EdgeInsets.only(right: 4, bottom: 4),
-                  decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(4)),
-                ),
-              ),
-              Container(
-                width: 40,
-                height: 10,
-                margin: const EdgeInsets.only(left: 4, bottom: 4),
-                decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(4)),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  width: 25,
-                  height: 10,
-                  margin: const EdgeInsets.only(right: 4, bottom: 4),
-                  decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(4)),
-                ),
-              ),
-            ],
-          );
-        } else {
-          mockScreenContent = Column(
-            children: List.generate(4, (index) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-              child: Row(
-                children: [
-                  Container(width: 8, height: 8, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white24)),
-                  const SizedBox(width: 4),
-                  Container(width: 20, height: 6, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(2))),
-                ],
-              ),
-            )),
-          );
-        }
-      } else if (projectType == 'housethat') {
-        if (position == 1) {
-          mockScreenContent = Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 30,
-                margin: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Center(child: Icon(Icons.home_outlined, size: 14, color: Colors.tealAccent)),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: Container(width: 35, height: 6, color: Colors.white30),
-              ),
-              const SizedBox(height: 4),
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: Container(width: 25, height: 5, color: Colors.white12),
-              ),
-            ],
-          );
-        } else {
-          mockScreenContent = Column(
-            children: List.generate(2, (index) => Container(
-              height: 20,
-              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(4)),
-            )),
-          );
-        }
-      } else if (projectType == 'shunyacore') {
-        if (position == 1) {
-          mockScreenContent = Column(
-            children: [
-              const SizedBox(height: 4),
-              Container(width: 14, height: 14, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.blueAccent)),
-              const SizedBox(height: 6),
-              Container(width: 40, height: 6, color: Colors.white30),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(width: 12, height: 10, color: Colors.white12),
-                  const SizedBox(width: 4),
-                  Container(width: 12, height: 10, color: Colors.white12),
-                ],
-              )
-            ],
-          );
-        } else {
-          mockScreenContent = Column(
-            children: List.generate(3, (index) => Container(
-              height: 12,
-              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              color: Colors.white12,
-            )),
-          );
-        }
+      if (hasImage) {
+        mockScreenContent = Image.asset(
+          images![position],
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        );
       } else {
-        if (position == 1) {
-          mockScreenContent = Column(
-            children: [
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4)),
-                  child: const Center(child: Icon(Icons.person_outline, size: 24, color: Colors.white38)),
+        if (projectType == 'wechat') {
+          if (position == 1) {
+            mockScreenContent = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(height: 12, color: Colors.blueAccent.withOpacity(0.3)),
+                const SizedBox(height: 6),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    width: 35,
+                    height: 10,
+                    margin: const EdgeInsets.only(right: 4, bottom: 4),
+                    decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(4)),
+                  ),
                 ),
-              ),
-              Row(
+                Container(
+                  width: 40,
+                  height: 10,
+                  margin: const EdgeInsets.only(left: 4, bottom: 4),
+                  decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(4)),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    width: 25,
+                    height: 10,
+                    margin: const EdgeInsets.only(right: 4, bottom: 4),
+                    decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(4)),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            mockScreenContent = Column(
+              children: List.generate(4, (index) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                child: Row(
+                  children: [
+                    Container(width: 8, height: 8, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white24)),
+                    const SizedBox(width: 4),
+                    Container(width: 20, height: 6, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(2))),
+                  ],
+                ),
+              )),
+            );
+          }
+        } else if (projectType == 'housethat') {
+          if (position == 1) {
+            mockScreenContent = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 30,
+                  margin: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Center(child: Icon(Icons.home_outlined, size: 14, color: Colors.tealAccent)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Container(width: 35, height: 6, color: Colors.white30),
+                ),
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Container(width: 25, height: 5, color: Colors.white12),
+                ),
+              ],
+            );
+          } else {
+            mockScreenContent = Column(
+              children: List.generate(2, (index) => Container(
+                height: 20,
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(4)),
+              )),
+            );
+          }
+        } else if (projectType == 'shunyacore') {
+          if (position == 1) {
+            mockScreenContent = Column(
+              children: [
+                const SizedBox(height: 4),
+                Container(width: 14, height: 14, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.blueAccent)),
+                const SizedBox(height: 6),
+                Container(width: 40, height: 6, color: Colors.white30),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(width: 12, height: 10, color: Colors.white12),
+                    const SizedBox(width: 4),
+                    Container(width: 12, height: 10, color: Colors.white12),
+                  ],
+                )
+              ],
+            );
+          } else {
+            mockScreenContent = Column(
+              children: List.generate(3, (index) => Container(
+                height: 12,
+                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                color: Colors.white12,
+              )),
+            );
+          }
+        } else {
+          if (position == 1) {
+            mockScreenContent = Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4)),
+                    child: const Center(child: Icon(Icons.person_outline, size: 24, color: Colors.white38)),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(width: 6, height: 6, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.redAccent)),
+                    const SizedBox(width: 4),
+                    Container(width: 6, height: 6, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.greenAccent)),
+                  ],
+                ),
+                const SizedBox(height: 2),
+              ],
+            );
+          } else {
+            mockScreenContent = Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(width: 6, height: 6, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.redAccent)),
-                  const SizedBox(width: 4),
-                  Container(width: 6, height: 6, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.greenAccent)),
+                  Container(width: 16, height: 16, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white24)),
+                  const SizedBox(height: 8),
+                  Container(width: 30, height: 6, color: Colors.white12),
+                  const SizedBox(height: 4),
+                  Container(width: 25, height: 6, color: Colors.white10),
                 ],
               ),
-              const SizedBox(height: 2),
-            ],
-          );
-        } else {
-          mockScreenContent = Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(width: 16, height: 16, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white24)),
-                const SizedBox(height: 8),
-                Container(width: 30, height: 6, color: Colors.white12),
-                const SizedBox(height: 4),
-                Container(width: 25, height: 6, color: Colors.white10),
-              ],
-            ),
-          );
+            );
+          }
         }
       }
 
@@ -511,8 +524,13 @@ class PhoneMockupWidget extends StatelessWidget {
                   color: Colors.black87,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                padding: const EdgeInsets.only(top: 8),
-                child: mockScreenContent,
+                padding: hasImage
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.only(top: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: mockScreenContent,
+                ),
               ),
             ),
             Positioned(

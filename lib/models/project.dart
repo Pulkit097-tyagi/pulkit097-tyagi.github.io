@@ -3,6 +3,7 @@ class Project {
   final String imagePath;
   final String description;
   final List<String> tags;
+  final List<String>? appScreenshot;
   final String? githubUrl;
   final String? androidUrl;
   final String? iosUrl;
@@ -14,6 +15,7 @@ class Project {
     required this.imagePath,
     required this.description,
     required this.tags,
+    this.appScreenshot,
     this.githubUrl,
     this.androidUrl,
     this.iosUrl,

@@ -73,10 +73,10 @@ class AppConstants {
   static const List<Project> projects = [
     Project(
       title: 'Shunya Core App',
-      imagePath: 'assets/images/shunya.png',
+      imagePath: 'assets/images/shunya/logo.png',
       description: 'Employee management platform supporting face recognition attendance, seed prediction, and sales tracking. Available on iOS and Android.',
       tags: ['Flutter', 'AI Face Detection', 'SQLite', 'Google Maps', 'Push Notifications'],
-      // githubUrl: 'https://github.com/pulkit-tyagi',
+      appScreenshot: ['assets/images/shunya/core_2.png', 'assets/images/shunya/core_1.png', 'assets/images/shunya/core_3.png'],
       androidUrl: 'https://play.google.com/store/apps/details?id=live.shunya.core&hl=en_IN',
       iosUrl: 'https://apps.apple.com/in/app/shunya-hydroponic-fodder/id6503728909',
       isFeatured: true,
@@ -84,9 +84,10 @@ class AppConstants {
     ),
     Project(
       title: 'Shunya Customer App',
-      imagePath: 'assets/images/shunya.png',
+      imagePath: 'assets/images/shunya/logo.png',
       description: 'Customer platform for order management, feed trading services, and secure transaction handling.',
       tags: ['Flutter', 'Order Management', 'REST API', 'Razorpay', 'Firebase'],
+      appScreenshot: ['assets/images/shunya/customer_2.png', 'assets/images/shunya/customer_1.png', 'assets/images/shunya/customer_3.png'],
       // githubUrl: 'https://github.com/pulkit-tyagi',
       androidUrl: 'https://play.google.com/store/apps/details?id=com.shunya.shunya&hl=en_IN',
       iosUrl: 'https://apps.apple.com/in/app/shunya-hydroponic-fodder/id6503728909',
@@ -95,9 +96,10 @@ class AppConstants {
     ),
     Project(
       title: 'Shunya Saarthi App',
-      imagePath: 'assets/images/shunya.png',
+      imagePath: 'assets/images/shunya/logo.png',
       description: 'Business application for hydroponic product sales, inventory management, and business tracking.',
       tags: ['Flutter', 'Inventory Management', 'Agri-Tech', 'SQLite', 'REST API'],
+      appScreenshot: ['assets/images/shunya/partner_2.png', 'assets/images/shunya/partner_1.png', 'assets/images/shunya/partner_3.png'],
       // githubUrl: 'https://github.com/pulkit-tyagi',
       androidUrl: 'https://play.google.com/store/apps/details?id=live.shunya.partner&hl=en_IN',
       iosUrl: 'https://apps.apple.com/in/app/shunya-saarthi/id6738115000',
