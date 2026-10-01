@@ -43,23 +43,26 @@ class _SocialButtonState extends State<SocialButton> {
           onTap: _launchUrl,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            transformAlignment: Alignment.center,
+            transform: Matrix4.translationValues(0.0, _isHovered ? -3.0 : 0.0, 0.0),
             width: 48,
             height: 48,
             decoration: BoxDecoration(
               color: _isHovered
                   ? AppColors.primary
-                  : (isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03)),
+                  : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03)),
               shape: BoxShape.circle,
               border: Border.all(
                 color: _isHovered
                     ? AppColors.secondary
-                    : (isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.08)),
+                    : (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.08)),
                 width: 1.5,
               ),
               boxShadow: _isHovered
                   ? [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.4),
+                        color: AppColors.primary.withValues(alpha: 0.4),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       )

@@ -2,55 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
+import '../core/theme_context.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/section_header.dart';
 
 class SkillsSection extends StatelessWidget {
   const SkillsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     Widget buildHeader() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.verified_outlined,
-                color: AppColors.primary,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'My Skills',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Technologies & Expertise',
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  fontSize: 32,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Here are the core programming languages, frameworks, and databases I work with.',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      return const SectionHeader(
+        eyebrow: 'My Skills',
+        icon: Icons.verified_outlined,
+        title: 'Technologies & Expertise',
+        subtitle: 'Here are the core programming languages, frameworks, and databases I work with.',
       );
     }
 
@@ -61,8 +27,8 @@ class SkillsSection extends StatelessWidget {
         alignment: WrapAlignment.center,
         children: AppConstants.skills.map((skill) {
           return GlassCard(
-            width: 110,
-            height: 120,
+            width: 120,
+            height: 124,
             animateOnHover: true,
             padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
             child: Column(
@@ -73,8 +39,15 @@ class SkillsSection extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
-                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary.withValues(alpha: 0.14),
+                          AppColors.secondary.withValues(alpha: 0.10),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     child: Center(
                       child: skill.iconData is FaIconData
@@ -90,16 +63,16 @@ class SkillsSection extends StatelessWidget {
                             ),
                     ),
                   ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Text(
                   skill.name,
                   textAlign: TextAlign.center,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    fontWeight: FontWeight.w600,
+                    color: context.textPrimary,
                   ),
                 ),
               ],

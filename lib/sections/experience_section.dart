@@ -2,66 +2,46 @@ import 'package:flutter/material.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
 import '../core/responsive.dart';
+import '../core/theme_context.dart';
 import '../models/experience.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/section_header.dart';
 
 class ExperienceSection extends StatelessWidget {
   const ExperienceSection({super.key});
 
+  static const double _nodeColumnWidth = 60;
+  static const double _nodeTop = 24;
+  static const double _nodeCenter = _nodeTop + 22; // node is 44px tall
+
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     Widget buildHeader() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'MY JOURNEY',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ],
+      return const SectionHeader(
+        eyebrow: 'My Journey',
+        icon: Icons.timeline_rounded,
+        title: 'Work & Education',
+        subtitle: 'A retrospective of my professional positions and academic training.',
+      );
+    }
+
+    Widget periodChip(String period) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          period,
+          style: const TextStyle(
+            fontSize: 12,
+            color: AppColors.primary,
+            fontWeight: FontWeight.w700,
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Work & Education',
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  fontSize: context.isMobile ? 28 : 40,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'A retrospective of my professional positions and academic training.',
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-        ],
+        ),
       );
     }
 
@@ -70,17 +50,12 @@ class ExperienceSection extends StatelessWidget {
       final nodeIcon = isWork ? Icons.work_outline_rounded : Icons.school_outlined;
       final nodeColor = isWork ? AppColors.primary : AppColors.secondary;
 
+      // Node circle; its centre sits [_nodeCenter] px below the row top.
       Widget timelineNode() {
-        return Column(
-          children: [
-            // Top connecting line
-            Container(
-              width: 2,
-              height: 24,
-              color: index == 0 ? Colors.transparent : AppColors.primary.withOpacity(0.2),
-            ),
-            // Glowing circular node
-            Container(
+        return Padding(
+          padding: const EdgeInsets.only(top: _nodeTop),
+          child: Center(
+            child: Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
@@ -89,7 +64,7 @@ class ExperienceSection extends StatelessWidget {
                 border: Border.all(color: nodeColor, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: nodeColor.withOpacity(0.3),
+                    color: nodeColor.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   )
@@ -97,15 +72,30 @@ class ExperienceSection extends StatelessWidget {
               ),
               child: Icon(nodeIcon, color: nodeColor, size: 20),
             ),
-            // Bottom connecting line
-            Expanded(
-              child: Container(
-                width: 2,
-                color: index == total - 1 ? Colors.transparent : AppColors.primary.withOpacity(0.2),
-              ),
-            ),
-          ],
+          ),
         );
+      }
+
+      // Connecting line drawn behind the row, so the row's height comes from
+      // the card alone (no IntrinsicHeight, which mis-measures text on web).
+      List<Widget> timelineLines(double centerX) {
+        final lineColor = AppColors.primary.withValues(alpha: 0.2);
+        return [
+          if (index != 0)
+            Positioned(
+              left: centerX - 1,
+              top: 0,
+              height: _nodeCenter,
+              child: Container(width: 2, color: lineColor),
+            ),
+          if (index != total - 1)
+            Positioned(
+              left: centerX - 1,
+              top: _nodeCenter,
+              bottom: 0,
+              child: Container(width: 2, color: lineColor),
+            ),
+        ];
       }
 
       Widget detailsCard() {
@@ -115,27 +105,17 @@ class ExperienceSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    exp.title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                    ),
-                  ),
-                  if (context.isMobile)
-                    Text(
-                      exp.period,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                ],
+              if (context.isMobile) ...[
+                periodChip(exp.period),
+                const SizedBox(height: 10),
+              ],
+              Text(
+                exp.title,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: context.textPrimary,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
@@ -146,19 +126,27 @@ class ExperienceSection extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 5),
-              Text(
-                exp.description,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                  height: 1.5,
-                ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.location_on_outlined, size: 14, color: context.textSecondary),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      exp.description,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: context.textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               if (exp.bulletPoints != null && exp.bulletPoints!.isNotEmpty) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 ...exp.bulletPoints!.map((bullet) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6.0),
+                      padding: const EdgeInsets.only(bottom: 8.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -170,8 +158,9 @@ class ExperienceSection extends StatelessWidget {
                             child: Text(
                               bullet,
                               style: TextStyle(
-                                fontSize: 12,
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                fontSize: 13,
+                                height: 1.5,
+                                color: context.textSecondary,
                               ),
                             ),
                           ),
@@ -185,61 +174,62 @@ class ExperienceSection extends StatelessWidget {
       }
 
       if (context.isMobile) {
-        return IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 60,
-                child: timelineNode(),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
-                  child: detailsCard(),
-                ),
-              ),
-            ],
-          ),
-        );
-      } else {
-        return IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Period (Left)
-              Expanded(
-                flex: 2,
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 32.0, top: 12.0),
-                  child: Text(
-                    exp.period,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+        return Stack(
+          children: [
+            ...timelineLines(_nodeColumnWidth / 2),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(width: _nodeColumnWidth, child: timelineNode()),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 24.0, right: 8.0),
+                    child: detailsCard(),
                   ),
                 ),
-              ),
-              // Center Node
-              SizedBox(
-                width: 60,
-                child: timelineNode(),
-              ),
-              // Card Details (Right)
-              Expanded(
-                flex: 5,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 32.0, left: 32.0),
-                  child: detailsCard(),
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         );
       }
+
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          // Period column takes 2/7 of the space left beside the node column.
+          final periodWidth = (constraints.maxWidth - _nodeColumnWidth) * 2 / 7;
+          return Stack(
+            children: [
+              ...timelineLines(periodWidth + _nodeColumnWidth / 2),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Period (Left), vertically aligned with the node
+                  SizedBox(
+                    width: periodWidth,
+                    height: _nodeCenter * 2,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 32.0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: periodChip(exp.period),
+                      ),
+                    ),
+                  ),
+                  // Center Node
+                  SizedBox(width: _nodeColumnWidth, child: timelineNode()),
+                  // Card Details (Right)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 32.0, left: 32.0),
+                      child: detailsCard(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
     }
 
     return Container(

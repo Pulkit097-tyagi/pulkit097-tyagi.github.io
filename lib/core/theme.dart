@@ -13,7 +13,6 @@ class AppTheme {
         primary: AppColors.primary,
         secondary: AppColors.secondary,
         tertiary: AppColors.accent,
-        background: AppColors.darkBg,
         surface: AppColors.darkCard,
         error: Colors.redAccent,
       ),
@@ -54,16 +53,16 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
+        fillColor: Colors.white.withValues(alpha: 0.05),
         hintStyle: const TextStyle(color: AppColors.darkTextSecondary, fontSize: 14),
         labelStyle: const TextStyle(color: AppColors.darkTextPrimary, fontSize: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -83,7 +82,6 @@ class AppTheme {
         primary: AppColors.primary,
         secondary: AppColors.secondary,
         tertiary: AppColors.accent,
-        background: AppColors.lightBg,
         surface: AppColors.lightCard,
         error: Colors.red,
       ),
@@ -117,7 +115,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: AppColors.lightCard,
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.05),
+        shadowColor: Colors.black.withValues(alpha: 0.05),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: AppColors.lightGlassBorder, width: 1),
@@ -125,16 +123,16 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.black.withOpacity(0.03),
+        fillColor: Colors.black.withValues(alpha: 0.03),
         hintStyle: const TextStyle(color: AppColors.lightTextSecondary, fontSize: 14),
         labelStyle: const TextStyle(color: AppColors.lightTextPrimary, fontSize: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black.withOpacity(0.08)),
+          borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black.withOpacity(0.08)),
+          borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

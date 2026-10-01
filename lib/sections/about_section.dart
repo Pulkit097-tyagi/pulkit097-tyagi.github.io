@@ -4,8 +4,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
 import '../core/responsive.dart';
+import '../core/theme_context.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/animated_button.dart';
+import '../widgets/section_header.dart';
 
 class AboutSection extends StatefulWidget {
   const AboutSection({super.key});
@@ -26,36 +28,20 @@ class _AboutSectionState extends State<AboutSection> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     Widget buildBio() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with person icon matching mockup
-          Row(
-            children: [
-              Icon(
-                Icons.person_outline_rounded,
-                color: AppColors.primary,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'About Me',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                ),
-              ),
-            ],
+          const SectionHeader(
+            eyebrow: 'About Me',
+            icon: Icons.person_outline_rounded,
+            centered: false,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Text(
             AppConstants.detailedBio,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: context.textSecondary,
                 ),
           ),
           const SizedBox(height: 24),
@@ -67,18 +53,27 @@ class _AboutSectionState extends State<AboutSection> {
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.keyboard_double_arrow_right_rounded,
-                      color: AppColors.primary,
-                      size: 18,
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        color: AppColors.primary,
+                        size: 14,
+                      ),
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      bullet,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        bullet,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: context.textPrimary,
+                        ),
                       ),
                     ),
                   ],
@@ -103,7 +98,8 @@ class _AboutSectionState extends State<AboutSection> {
       return VisibilityDetector(
         key: const Key('about-stats-detector'),
         onVisibilityChanged: (info) {
-          if (info.visibleFraction > 0.20 && !_isStatsVisible) {
+          // Start counting as soon as the grid enters the viewport.
+          if (info.visibleFraction > 0.05 && !_isStatsVisible) {
             setState(() {
               _isStatsVisible = true;
             });
@@ -133,10 +129,10 @@ class _AboutSectionState extends State<AboutSection> {
                   Container(
                     padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
+                      color: AppColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12.0),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.15),
+                        color: AppColors.primary.withValues(alpha: 0.15),
                         width: 1.0,
                       ),
                     ),
@@ -155,8 +151,8 @@ class _AboutSectionState extends State<AboutSection> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         TweenAnimationBuilder<double>(
-                          duration: const Duration(milliseconds: 1500),
-                          curve: Curves.easeOutQuart,
+                          duration: const Duration(milliseconds: 900),
+                          curve: Curves.easeOutCubic,
                           tween: Tween<double>(
                             begin: 0.0,
                             end: _isStatsVisible ? targetValue.toDouble() : 0.0,
@@ -167,7 +163,10 @@ class _AboutSectionState extends State<AboutSection> {
                               style: TextStyle(
                                 fontSize: context.isMobile ? 22 : 26,
                                 fontWeight: FontWeight.bold,
-                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                letterSpacing: -0.5,
+                                // Fixed-width digits so the card doesn't jitter while counting
+                                fontFeatures: const [FontFeature.tabularFigures()],
+                                color: context.textPrimary,
                               ),
                             );
                           },
@@ -177,7 +176,7 @@ class _AboutSectionState extends State<AboutSection> {
                           stat['label'] as String,
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: context.textSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

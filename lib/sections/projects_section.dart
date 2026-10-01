@@ -1,21 +1,141 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/colors.dart';
-import '../core/constants.dart';
 import '../core/responsive.dart';
+import '../core/theme_context.dart';
 import '../models/project.dart';
+import '../providers/projects_provider.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/section_header.dart';
 
-class ProjectsSection extends StatefulWidget {
+class ProjectsSection extends StatelessWidget {
   const ProjectsSection({super.key});
 
   @override
-  State<ProjectsSection> createState() => _ProjectsSectionState();
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: const Column(
+            children: [
+              SectionHeader(
+                eyebrow: 'My Portfolio',
+                icon: Icons.folder_open_rounded,
+                title: 'Featured Projects',
+                subtitle: 'A selection of recent applications I have designed and engineered.',
+              ),
+              SizedBox(height: 36),
+              _ProjectFilters(),
+              SizedBox(height: 48),
+              _ProjectGrid(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _ProjectsSectionState extends State<ProjectsSection> {
-  String _selectedFilter = 'All';
+class _ProjectFilters extends ConsumerWidget {
+  const _ProjectFilters();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selected = ref.watch(projectFilterProvider);
+    final isDark = context.isDark;
+
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      alignment: WrapAlignment.center,
+      children: projectFilters.map((filter) {
+        final isSelected = selected == filter;
+        return ChoiceChip(
+          label: Text(
+            filter,
+            style: TextStyle(
+              color: isSelected ? Colors.white : context.textSecondary,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+          selected: isSelected,
+          onSelected: (_) => ref.read(projectFilterProvider.notifier).select(filter),
+          selectedColor: AppColors.primary,
+          backgroundColor: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: isSelected ? Colors.transparent : context.glassBorder,
+            ),
+          ),
+          showCheckmark: false,
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _ProjectGrid extends ConsumerWidget {
+  const _ProjectGrid();
+
+  static const double _spacing = 24;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final projects = ref.watch(filteredProjectsProvider);
+
+    if (projects.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40.0),
+        child: Text(
+          'No projects match the selected criteria.',
+          style: TextStyle(color: context.textSecondary),
+        ),
+      );
+    }
+
+    final columns = context.isMobile ? 1 : (context.isTablet ? 2 : 3);
+
+    // Rows of top-aligned cards whose height follows their own content, so
+    // nothing is clipped at any width. IntrinsicHeight is deliberately
+    // avoided: it under-measures wrapped text on web and caused overflows.
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: Column(
+        key: ValueKey(projects),
+        children: [
+          for (var start = 0; start < projects.length; start += columns)
+            Padding(
+              padding: EdgeInsets.only(top: start == 0 ? 0 : _spacing),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var i = start; i < start + columns; i++) ...[
+                    if (i != start) const SizedBox(width: _spacing),
+                    Expanded(
+                      child: i < projects.length
+                          ? _ProjectCard(project: projects[i])
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProjectCard extends StatelessWidget {
+  final Project project;
+
+  const _ProjectCard({required this.project});
 
   Future<void> _launchUrl(String? url) async {
     if (url == null) return;
@@ -27,279 +147,152 @@ class _ProjectsSectionState extends State<ProjectsSection> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
+    final hasLinks = project.githubUrl != null || project.androidUrl != null || project.iosUrl != null;
 
-    final filteredProjects = AppConstants.projects.where((project) {
-      if (_selectedFilter == 'All') return true;
-      if (_selectedFilter == 'Featured') return project.isFeatured;
-      return project.tags.any((tag) => tag.toLowerCase() == _selectedFilter.toLowerCase());
-    }).toList();
-
-    Widget buildHeader() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+    return GlassCard(
+      animateOnHover: true,
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'MY PORTFOLIO',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ],
+          // Overlapping Phone Mockups Header
+          PhoneMockupWidget(
+            projectType: project.imageUrl,
+            isFeatured: project.isFeatured,
+            images: project.appScreenshot,
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Featured Projects',
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  fontSize: context.isMobile ? 28 : 40,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'A selection of recent applications I have designed and engineered.',
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      );
-    }
-
-    Widget buildFilters() {
-      final filters = ['All', 'Featured', 'Flutter', 'Firebase', 'SQLite', 'REST API', 'Agri-Tech'];
-
-      return Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        alignment: WrapAlignment.center,
-        children: filters.map((filter) {
-          final isSelected = _selectedFilter == filter;
-          return ChoiceChip(
-            label: Text(
-              filter,
-              style: TextStyle(
-                color: isSelected
-                    ? Colors.white
-                    : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            selected: isSelected,
-            onSelected: (selected) {
-              if (selected) {
-                setState(() {
-                  _selectedFilter = filter;
-                });
-              }
-            },
-            selectedColor: AppColors.primary,
-            backgroundColor: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(
-                color: isSelected
-                    ? Colors.transparent
-                    : (isDark ? AppColors.darkGlassBorder : AppColors.lightGlassBorder),
-              ),
-            ),
-            showCheckmark: false,
-          );
-        }).toList(),
-      );
-    }
-
-    Widget buildProjectCard(Project project) {
-      bool show = (project.githubUrl != null || project.androidUrl != null || project.iosUrl != null) ? true : false;
-      return GlassCard(
-        animateOnHover: true,
-        padding: EdgeInsets.zero,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Overlapping Phone Mockups Header
-            PhoneMockupWidget(
-              projectType: project.imageUrl,
-              isFeatured: project.isFeatured,
-              images: project.appScreenshot,
-            ),
-            // Project details description area
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Image.asset(project.imagePath, height: project.imagePath.toString().contains("housethat") ? 30 : 25, width: 35,),
-                      SizedBox(width: 5),
-                      Flexible(
-                        child: Text(
-                          project.title,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    project.description,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                      height: 1.5,
+          // Project details description area
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Image.asset(
+                      project.imagePath,
+                      height: project.imagePath.contains("housethat") ? 30 : 25,
+                      width: 35,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Tags Row
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: project.tags.map((tag) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                            color: AppColors.primary.withOpacity(0.15),
-                            width: 1,
-                          ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        project.title,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: context.textPrimary,
                         ),
-                        child: Text(
-                          tag,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  project.description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.textSecondary,
+                    height: 1.55,
                   ),
-                  if (show)
+                ),
+                const SizedBox(height: 16),
+                // Tags Row
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: project.tags.map((tag) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.15),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        tag,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                if (hasLinks) ...[
                   const SizedBox(height: 20),
-                  if (show)
-                  const Divider(height: 1),
-                  if (show)
+                  Divider(height: 1, color: context.glassBorder),
                   const SizedBox(height: 12),
                   // Links footer
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    alignment: WrapAlignment.spaceBetween,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       if (project.githubUrl != null)
-                        TextButton.icon(
+                        _ProjectLink(
+                          icon: const FaIcon(FontAwesomeIcons.github, size: 15),
+                          label: 'Source Code',
+                          color: isDark ? Colors.white70 : Colors.black87,
                           onPressed: () => _launchUrl(project.githubUrl),
-                          icon: FaIcon(FontAwesomeIcons.github, size: 16),
-                          label: const Text('Source Code', style: TextStyle(fontSize: 13)),
-                          style: TextButton.styleFrom(
-                            foregroundColor: isDark ? Colors.white70 : Colors.black87,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                          ),
                         ),
                       if (project.androidUrl != null)
-                        TextButton.icon(
+                        _ProjectLink(
+                          icon: const FaIcon(FontAwesomeIcons.googlePlay, size: 14),
+                          label: 'Android',
+                          color: AppColors.secondary,
                           onPressed: () => _launchUrl(project.androidUrl),
-                          icon: const Icon(Icons.open_in_new_rounded, size: 16),
-                          label: const Text('Android', style: TextStyle(fontSize: 13)),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.secondary,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                          ),
                         ),
                       if (project.iosUrl != null)
-                        TextButton.icon(
+                        _ProjectLink(
+                          icon: const FaIcon(FontAwesomeIcons.appStoreIos, size: 15),
+                          label: 'iOS',
+                          color: AppColors.secondary,
                           onPressed: () => _launchUrl(project.iosUrl),
-                          icon: const Icon(Icons.open_in_new_rounded, size: 16),
-                          label: const Text('IOS', style: TextStyle(fontSize: 13)),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.secondary,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                          ),
                         ),
                     ],
                   ),
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              buildHeader(),
-              const SizedBox(height: 36),
-              buildFilters(),
-              const SizedBox(height: 48),
-              filteredProjects.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40.0),
-                      child: Text(
-                        'No projects match the selected criteria.',
-                        style: TextStyle(color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
-                      ),
-                    )
-                  : GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: filteredProjects.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: context.isMobile ? 1 : (context.isTablet ? 2 : 3),
-                        crossAxisSpacing: 24,
-                        mainAxisSpacing: 24,
-                        childAspectRatio: context.isMobile ? 0.65 : (context.isTablet ? 0.55 : 0.8),
-                      ),
-                      itemBuilder: (context, index) {
-                        return buildProjectCard(filteredProjects[index]);
-                      },
-                    ),
-            ],
           ),
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProjectLink extends StatelessWidget {
+  final Widget icon;
+  final String label;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _ProjectLink({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      onPressed: onPressed,
+      icon: icon,
+      label: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+      style: TextButton.styleFrom(
+        foregroundColor: color,
+        backgroundColor: color.withValues(alpha: 0.08),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -349,7 +342,7 @@ class PhoneMockupWidget extends StatelessWidget {
             mockScreenContent = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(height: 12, color: Colors.blueAccent.withOpacity(0.3)),
+                Container(height: 12, color: Colors.blueAccent.withValues(alpha: 0.3)),
                 const SizedBox(height: 6),
                 Align(
                   alignment: Alignment.centerRight,
@@ -505,7 +498,7 @@ class PhoneMockupWidget extends StatelessWidget {
           boxShadow: position == 1
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   )

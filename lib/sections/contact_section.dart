@@ -4,8 +4,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
 import '../core/responsive.dart';
+import '../core/theme_context.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/social_button.dart';
+import '../widgets/section_header.dart';
 
 class ContactSection extends StatefulWidget {
   const ContactSection({super.key});
@@ -24,48 +26,53 @@ class _ContactSectionState extends State<ContactSection> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     Widget buildHeader() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.chat_bubble_outline_rounded,
-                color: AppColors.primary,
-                size: 24,
+      return const SectionHeader(
+        eyebrow: 'Get In Touch',
+        icon: Icons.chat_bubble_outline_rounded,
+        title: 'Let\'s Connect',
+        subtitle: 'Feel free to reach out for collaborations, project inquiries, or just to say hello!',
+      );
+    }
+
+    Widget buildInfoCard({
+      required IconData icon,
+      required String label,
+      required String value,
+      VoidCallback? onTap,
+    }) {
+      return GlassCard(
+        width: context.isMobile ? double.infinity : 220,
+        height: 130,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        animateOnHover: true,
+        onTap: onTap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Get In Touch',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Let\'s Connect',
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  fontSize: 32,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Feel free to reach out for collaborations, project inquiries, or just to say hello!',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+              child: Icon(icon, color: AppColors.primary, size: 20),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: context.textPrimary),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, color: context.textSecondary),
+            ),
+          ],
+        ),
       );
     }
 
@@ -106,8 +113,8 @@ class _ContactSectionState extends State<ContactSection> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                      height: 1.4,
+                      color: context.textPrimary,
+                      height: 1.5,
                     ),
                   ),
                 ),
@@ -115,107 +122,35 @@ class _ContactSectionState extends State<ContactSection> {
             ),
           ),
           
-          // Card 2: Email Card (Mockup style)
-          GestureDetector(
+          // Card 2: Email Card
+          buildInfoCard(
+            icon: Icons.email_outlined,
+            label: 'Email',
+            value: AppConstants.email,
             onTap: () => _launchUrl('mailto:${AppConstants.email}'),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GlassCard(
-                width: context.isMobile ? double.infinity : 220,
-                height: 130,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                animateOnHover: true,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.email_outlined, color: AppColors.primary, size: 22),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Email',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      AppConstants.email,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ),
 
-          // Card 3: Phone Card (Mockup style)
-          GestureDetector(
+          // Card 3: Phone Card
+          buildInfoCard(
+            icon: Icons.phone_outlined,
+            label: 'Phone',
+            value: AppConstants.phone,
             onTap: () => _launchUrl('tel:${AppConstants.phone}'),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GlassCard(
-                width: context.isMobile ? double.infinity : 220,
-                height: 130,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                animateOnHover: true,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.phone_outlined, color: AppColors.primary, size: 22),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Phone',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      AppConstants.phone,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ),
 
-          // Card 4: Location Card (Mockup style)
-          GlassCard(
-            width: context.isMobile ? double.infinity : 220,
-            height: 130,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            animateOnHover: true,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.location_on_outlined, color: AppColors.primary, size: 22),
-                const SizedBox(height: 12),
-                const Text(
-                  'Location',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  AppConstants.location,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                  ),
-                ),
-              ],
-            ),
+          // Card 4: Location Card
+          buildInfoCard(
+            icon: Icons.location_on_outlined,
+            label: 'Location',
+            value: AppConstants.location,
           ),
 
           // Card 5: Social handles container (Mockup style)
           GlassCard(
-            width: context.isMobile ? double.infinity : 220,
+            // Wide enough for four 48px buttons with breathing room
+            width: context.isMobile ? double.infinity : 280,
             height: 130,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             animateOnHover: true,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

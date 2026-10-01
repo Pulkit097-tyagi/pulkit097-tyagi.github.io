@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
+import '../core/theme_context.dart';
 import '../providers/nav_provider.dart';
 
 class Footer extends ConsumerWidget {
@@ -9,13 +10,13 @@ class Footer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final navNotifier = ref.read(navProvider.notifier);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard.withOpacity(0.3) : Colors.black.withOpacity(0.02),
+        color: isDark ? AppColors.darkCard.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.02),
         border: Border(
           top: BorderSide(
             color: isDark ? AppColors.darkGlassBorder : AppColors.lightGlassBorder,
@@ -54,7 +55,7 @@ class Footer extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: context.textPrimary,
                         ),
                       ),
                     ],
@@ -65,38 +66,43 @@ class Footer extends ConsumerWidget {
                     message: 'Scroll to Top',
                     child: IconButton(
                       icon: const Icon(Icons.keyboard_arrow_up_rounded),
-                      onPressed: () => navNotifier.scrollToSection(0), // Scroll back to Home
+                      onPressed: () => navNotifier.scrollTo(AppSection.home),
                       style: IconButton.styleFrom(
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                         foregroundColor: AppColors.primary,
-                        hoverColor: AppColors.primary.withOpacity(0.2),
+                        hoverColor: AppColors.primary.withValues(alpha: 0.2),
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-              const Divider(height: 1),
+              Divider(height: 1, color: context.glassBorder),
               const SizedBox(height: 24),
               // Sub text
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              SizedBox(
+                width: double.infinity,
+                child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: 16,
+                runSpacing: 8,
                 children: [
                   Text(
                     '© 2026 Pulkit Tyagi. All rights reserved.',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color: context.textSecondary,
                     ),
                   ),
                   Text(
                     'Built with ❤️ using Flutter',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color: context.textSecondary,
                     ),
                   ),
                 ],
+              ),
               ),
             ],
           ),

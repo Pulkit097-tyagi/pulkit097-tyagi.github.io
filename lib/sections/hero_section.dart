@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
 import '../core/responsive.dart';
+import '../core/theme_context.dart';
 import '../widgets/animated_button.dart';
 import '../widgets/social_button.dart';
 import '../providers/nav_provider.dart';
@@ -14,7 +15,6 @@ class HeroSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final navNotifier = ref.read(navProvider.notifier);
 
     // Build the text description and action buttons
@@ -26,7 +26,7 @@ class HeroSection extends ConsumerWidget {
           Text(
             'Hi, I\'m',
             style: TextStyle(
-              color: isDark ? Colors.white70 : Colors.black87,
+              color: context.textSecondary,
               fontWeight: FontWeight.w600,
               fontSize: context.isMobile ? 18 : 24,
               letterSpacing: 1,
@@ -44,7 +44,8 @@ class HeroSection extends ConsumerWidget {
                       fontSize: context.isMobile ? 40 : 64,
                       height: 1.1,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black87,
+                      letterSpacing: -1,
+                      color: context.textPrimary,
                     ),
               ),
               ShaderMask(
@@ -57,6 +58,7 @@ class HeroSection extends ConsumerWidget {
                         fontSize: context.isMobile ? 40 : 64,
                         height: 1.1,
                         fontWeight: FontWeight.bold,
+                        letterSpacing: -1,
                         color: Colors.white,
                       ),
                 ),
@@ -83,7 +85,7 @@ class HeroSection extends ConsumerWidget {
               AppConstants.bio,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontSize: context.isMobile ? 15 : 17,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: context.textSecondary,
                   ),
             ),
           ).animate().fadeIn(delay: 450.ms, duration: 600.ms),
@@ -97,13 +99,13 @@ class HeroSection extends ConsumerWidget {
               AnimatedButton(
                 text: 'Hire Me',
                 icon: Icons.send_rounded,
-                onPressed: () => navNotifier.scrollToSection(5), // Contact section
+                onPressed: () => navNotifier.scrollTo(AppSection.contact),
               ),
               AnimatedButton(
                 text: 'View Projects',
                 isSecondary: true,
                 icon: Icons.keyboard_arrow_down_rounded,
-                onPressed: () => navNotifier.scrollToSection(3), // Projects section
+                onPressed: () => navNotifier.scrollTo(AppSection.projects),
               ),
             ],
           ).animate().fadeIn(delay: 600.ms, duration: 600.ms),
@@ -143,8 +145,11 @@ class HeroSection extends ConsumerWidget {
 
     // Developer Headshot with glowing circles and floating icons matching mockup image
     Widget buildVisualSide() {
+      // Scale the fixed-size composition down on narrow phones instead of overflowing.
       return Center(
-        child: SizedBox(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: SizedBox(
           width: 420,
           height: 420,
           child: Stack(
@@ -158,13 +163,13 @@ class HeroSection extends ConsumerWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.primary.withOpacity(0.35),
+                      AppColors.primary.withValues(alpha: 0.35),
                       Colors.transparent,
                     ],
                     radius: 0.8,
                   ),
                   border: Border.all(
-                    color: AppColors.primary.withOpacity(0.2),
+                    color: AppColors.primary.withValues(alpha: 0.2),
                     width: 2.0,
                   ),
                 ),
@@ -178,7 +183,7 @@ class HeroSection extends ConsumerWidget {
               //   decoration: BoxDecoration(
               //     shape: BoxShape.circle,
               //     border: Border.all(
-              //       color: AppColors.secondary.withOpacity(0.15),
+              //       color: AppColors.secondary.withValues(alpha: 0.15),
               //       width: 1.5,
               //     ),
               //   ),
@@ -192,12 +197,12 @@ class HeroSection extends ConsumerWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: AppColors.primary.withOpacity(0.4),
+                    color: AppColors.primary.withValues(alpha: 0.4),
                     width: 2.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.25),
+                      color: AppColors.primary.withValues(alpha: 0.25),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     )
@@ -221,12 +226,12 @@ class HeroSection extends ConsumerWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A).withOpacity(0.9),
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.9),
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primary.withOpacity(0.6), width: 1.5),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.6), width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.25),
+                        color: AppColors.primary.withValues(alpha: 0.25),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       )
@@ -251,12 +256,12 @@ class HeroSection extends ConsumerWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A).withOpacity(0.9),
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.9),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.cyan.withOpacity(0.6), width: 1.5),
+                    border: Border.all(color: Colors.cyan.withValues(alpha: 0.6), width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.cyan.withOpacity(0.2),
+                        color: Colors.cyan.withValues(alpha: 0.2),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       )
@@ -281,12 +286,12 @@ class HeroSection extends ConsumerWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A).withOpacity(0.9),
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.9),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.amber.withOpacity(0.6), width: 1.5),
+                    border: Border.all(color: Colors.amber.withValues(alpha: 0.6), width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.amber.withOpacity(0.2),
+                        color: Colors.amber.withValues(alpha: 0.2),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       )
@@ -303,6 +308,7 @@ class HeroSection extends ConsumerWidget {
                   .slideY(begin: 0.08, end: -0.08, duration: 3.2.seconds, curve: Curves.easeInOut),
               ),
             ],
+          ),
           ),
         ),
       );

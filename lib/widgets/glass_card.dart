@@ -1,8 +1,6 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/colors.dart';
-import '../providers/theme_provider.dart';
+import '../core/theme_context.dart';
 
 class GlassCard extends StatefulWidget {
   final Widget child;
@@ -33,73 +31,60 @@ class _GlassCardState extends State<GlassCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, _) {
-        final themeMode = ref.watch(themeProvider);
-        final isDark = themeMode == ThemeMode.dark;
+    final isDark = context.isDark;
+    final highlighted = _isHovered && widget.animateOnHover;
 
-        final glassBg = isDark ? AppColors.darkGlassBg : AppColors.lightGlassBg;
-        final glassBorder = isDark ? AppColors.darkGlassBorder : AppColors.lightGlassBorder;
-        final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final baseColor = isDark
+        ? Colors.white.withValues(alpha: 0.035)
+        : Colors.white.withValues(alpha: 0.85);
+    final hoverColor = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.white;
 
-        Widget cardContent = ClipRRect(
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
-            child: Container(
-              width: widget.width,
-              height: widget.height,
-              padding: widget.padding,
-              decoration: BoxDecoration(
-                color: _isHovered && widget.animateOnHover
-                    ? cardColor.withOpacity(isDark ? 0.35 : 0.95)
-                    : glassBg.withOpacity(isDark ? 0.12 : 0.08),
-                borderRadius: BorderRadius.circular(widget.borderRadius),
-                border: Border.all(
-                  color: _isHovered && widget.animateOnHover
-                      ? AppColors.primary.withOpacity(0.5)
-                      : glassBorder,
-                  width: 1.5,
-                ),
-                boxShadow: _isHovered && widget.animateOnHover
-                    ? [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(isDark ? 0.25 : 0.15),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
-                        )
-                      ]
-                    : [],
-              ),
-              child: widget.child,
-            ),
+    Widget card = AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      width: widget.width,
+      height: widget.height,
+      padding: widget.padding,
+      clipBehavior: Clip.antiAlias,
+      transformAlignment: Alignment.center,
+      transform: Matrix4.translationValues(0.0, highlighted ? -4.0 : 0.0, 0.0),
+      decoration: BoxDecoration(
+        color: highlighted ? hoverColor : baseColor,
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        border: Border.all(
+          color: highlighted
+              ? AppColors.primary.withValues(alpha: 0.45)
+              : context.glassBorder,
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: highlighted
+                ? AppColors.primary.withValues(alpha: isDark ? 0.22 : 0.14)
+                : Colors.black.withValues(alpha: isDark ? 0.0 : 0.04),
+            blurRadius: highlighted ? 28 : 12,
+            offset: Offset(0, highlighted ? 12 : 4),
           ),
-        );
-
-        if (widget.onTap != null) {
-          cardContent = GestureDetector(
-            onTap: widget.onTap,
-            child: cardContent,
-          );
-        }
-
-        if (widget.animateOnHover) {
-          cardContent = MouseRegion(
-            onEnter: (_) => setState(() => _isHovered = true),
-            onExit: (_) => setState(() => _isHovered = false),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-              transform: Matrix4.identity()
-                ..translate(0.0, _isHovered ? -6.0 : 0.0, 0.0)
-                ..scale(_isHovered ? 1.02 : 1.0),
-              child: cardContent,
-            ),
-          );
-        }
-
-        return cardContent;
-      },
+        ],
+      ),
+      child: widget.child,
     );
+
+    if (widget.onTap != null) {
+      card = GestureDetector(onTap: widget.onTap, child: card);
+    }
+
+    if (widget.animateOnHover || widget.onTap != null) {
+      card = MouseRegion(
+        cursor: widget.onTap != null ? SystemMouseCursors.click : MouseCursor.defer,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: card,
+      );
+    }
+
+    return card;
   }
 }
