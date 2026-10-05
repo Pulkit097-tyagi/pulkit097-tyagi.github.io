@@ -9,8 +9,10 @@ import 'app.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Set visibility detector update interval to make transition detection smoother
-  VisibilityDetectorController.instance.updateInterval = const Duration(milliseconds: 150);
+  // Report visibility on the next frame rather than batching every 150ms, so
+  // the About stats start counting the moment they scroll into view. Cheap:
+  // only that one grid uses a VisibilityDetector.
+  VisibilityDetectorController.instance.updateInterval = Duration.zero;
   
   runApp(
     const ProviderScope(

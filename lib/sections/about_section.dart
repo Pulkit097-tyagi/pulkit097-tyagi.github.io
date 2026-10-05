@@ -158,8 +158,11 @@ class _AboutSectionState extends State<AboutSection> {
                             end: _isStatsVisible ? targetValue.toDouble() : 0.0,
                           ),
                           builder: (context, value, child) {
+                            // round(), not toInt(): flooring an ease-out curve
+                            // holds "target - 1" until the very last frame, so
+                            // small targets (2, 3, 8) looked stuck.
                             return Text(
-                              '${value.toInt()}${stat['suffix']}',
+                              '${value.round()}${stat['suffix']}',
                               style: TextStyle(
                                 fontSize: context.isMobile ? 22 : 26,
                                 fontWeight: FontWeight.bold,
